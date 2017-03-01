@@ -43,7 +43,7 @@ namespace Instagram_foto
 					string get_html = req.Get(url).ToString();
 
 					//получем ссылку на изображение
-					string src_img = get_html.Substring("<meta property=\"og:image\" content=\"", "?");
+					string src_img = get_html.Substring("<meta property=\"og:image\" content=\"", "\"");
 
 					WebClient client = new WebClient();
 					Uri uri = new Uri(src_img);
