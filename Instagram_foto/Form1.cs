@@ -40,28 +40,42 @@ namespace Instagram_foto
 					req.UserAgent = Http.ChromeUserAgent();
 					CookieDictionary cookies = new CookieDictionary(false);
 					req.Cookies = cookies;
+					
+					string response = req.Get(url).ToString();
 
-					string[] imgs = req.Get(url).ToString().Substrings("\"display_url\": \"", "\"");									
+					string[] imgs = req.Get(url).ToString().Substrings("\"display_url\":\"", "\"");
+					string[] vids = req.Get(url).ToString().Substrings("\"video_url\":\"", "\"");
+
+					//Убираем фото превью видео
+					if (vids.Length > 0 && !all)
+					{
+						List<string> temp = imgs.ToList();
+						temp.RemoveRange(imgs.Length - vids.Length, vids.Length);
+						imgs = temp.ToArray();
+					}
 
 					WebClient client = new WebClient();
 					
-					int start = (imgs.Length > 1 && all) ? 1 : 0;
+					//Складываем два массива
+					string[] arr = imgs.Concat(vids).ToArray();
+					int start = (imgs.Length > 1) ? 1 : 0;
 
 					//Все фотографии
-					if (start == 1)
+					if (all)
 					{
-						for (int i = start; i < imgs.Length; i++)
+						for (int i = start; i < arr.Length; i++)
 						{
-							Uri uri = uri = new Uri(imgs[i]);
+							Uri uri = new Uri(arr[i]);
 							client.DownloadFile(uri, uri.Segments[uri.Segments.Length - 1]);
 						}
 					}
 					//Одна фотография
-					if (start == 0)
+					if (!all)
 					{
-						Uri uri = uri = new Uri(imgs[0]);
+						Uri uri = new Uri(arr[0]);
 						client.DownloadFile(uri, uri.Segments[uri.Segments.Length - 1]);
 					}
+
 				}
 
 				//Очищаем текстовое поле после успешного выполнения
